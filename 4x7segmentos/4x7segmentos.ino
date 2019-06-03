@@ -3,8 +3,6 @@ typedef struct {
   bool pinVal;
 } pinInit_t;
 
-void writeNumberOnScreen(pinInit_t* , pinInit_t*);
-
 int pinA = 2;
 int pinB = 3;
 int pinC = 4;
@@ -18,6 +16,7 @@ int D2 = 11;
 int D3 = 12;
 int D4 = 13;
 
+//Displays
 pinInit_t displayOne[] = {
   {D1, LOW},
   {D2, HIGH},
@@ -46,7 +45,7 @@ pinInit_t displayFour[] = {
   {D4, LOW}
 };
 
-
+//Digits
 pinInit_t digitOne[] = {
   {pinA, LOW},
   {pinB, HIGH},
@@ -168,8 +167,13 @@ pinInit_t digitBlank[] = {
   {pinDp, LOW},
 };
 
+static int LENGTH_NUMBER = 4;
+
+static size_t LENGTH_DISPLAY = sizeof(displayOne) / sizeof(pinInit_t);
+static size_t LENGTH_DIGIT = sizeof(digitOne) / sizeof(pinInit_t);  
 
 void setup() {
+  Serial.begin(9600); 
   // put your setup code here, to run once:
   // initialize the digital pins as outputs.
   pinMode(pinA, OUTPUT);
@@ -187,31 +191,95 @@ void setup() {
 }
 
 void loop() {
-  // 1 - 4
-  writeNumberOnScreen(displayOne, sizeof(displayOne) / sizeof(pinInit_t), digitOne, sizeof(digitOne) / sizeof(pinInit_t));
-  writeNumberOnScreen(displayTwo, sizeof(displayTwo) / sizeof(pinInit_t), digitTwo, sizeof(digitTwo) / sizeof(pinInit_t));
-  writeNumberOnScreen(displayThree, sizeof(displayThree) / sizeof(pinInit_t), digitThree, sizeof(digitThree) / sizeof(pinInit_t));
-  writeNumberOnScreen(displayFour, sizeof(displayFour) / sizeof(pinInit_t), digitFour, sizeof(digitFour) / sizeof(pinInit_t));
-  
-  // 5 - 8
-  writeNumberOnScreen(displayOne, sizeof(displayOne) / sizeof(pinInit_t), digitFive, sizeof(digitFive) / sizeof(pinInit_t));
-  writeNumberOnScreen(displayTwo, sizeof(displayTwo) / sizeof(pinInit_t), digitSix, sizeof(digitSix) / sizeof(pinInit_t));
-  writeNumberOnScreen(displayThree, sizeof(displayThree) / sizeof(pinInit_t), digitSeven, sizeof(digitSeven) / sizeof(pinInit_t));
-  writeNumberOnScreen(displayFour, sizeof(displayFour) / sizeof(pinInit_t), digitEight, sizeof(digitEight) / sizeof(pinInit_t));
-  
-  // 9 - 0
-  writeNumberOnScreen(displayOne, sizeof(displayOne) / sizeof(pinInit_t), digitNine, sizeof(digitNine) / sizeof(pinInit_t));
-  writeNumberOnScreen(displayTwo, sizeof(displayTwo) / sizeof(pinInit_t), digitZero, sizeof(digitZero) / sizeof(pinInit_t));
-  writeNumberOnScreen(displayThree, sizeof(displayThree) / sizeof(pinInit_t), digitBlank, sizeof(digitBlank) / sizeof(pinInit_t));
-  writeNumberOnScreen(displayFour, sizeof(displayFour) / sizeof(pinInit_t), digitBlank, sizeof(digitBlank) / sizeof(pinInit_t));
+  int number = 5641;
+
+  char *arrayNumber = getChar(number);
+  pinInit_t* currentDisplay;
+  pinInit_t* digit;
+
+  Serial.println(arrayNumber);
+
+  for(int i = 0; i < LENGTH_NUMBER; i++){
+    int segmentDigit = arrayNumber[i] - '0';
+    Serial.println(segmentDigit);
+    currentDisplay = getDisplay(i);
+    digit = getDigitDisplay(segmentDigit);
+
+    writeNumberOnScreen(currentDisplay, digit);
+  }
+
+  free(arrayNumber);
 }
 
-void writeNumberOnScreen(pinInit_t * selectedDisplay, size_t lengthDisplay, pinInit_t * number, size_t lengthNumber) {
-  for (int i = 0; i < lengthDisplay; i++) {
+void writeNumberOnScreen(pinInit_t * selectedDisplay, pinInit_t * number) {
+  for (int i = 0; i < LENGTH_DISPLAY; i++) {
     digitalWrite(selectedDisplay[i].pinNum, selectedDisplay[i].pinVal);
   }
-  for (int i = 0; i < lengthNumber; i++) {
+  for (int i = 0; i < LENGTH_DIGIT; i++) {
     digitalWrite(number[i].pinNum, number[i].pinVal);
   }
-  delay(500);
+  delay(5);
+}
+
+char * getChar(int number){
+   char *str_to_ret = (char*)malloc(sizeof(char) * LENGTH_NUMBER);
+
+  itoa(number, str_to_ret, 10);
+
+  return str_to_ret;
+}
+
+pinInit_t* getDisplay(int number){
+  switch(number){
+    case 0:
+      return displayOne;
+      break;
+    case 1:
+      return displayTwo;
+      break;
+    case 2: 
+      return displayThree;
+      break;
+    case 3:
+      return displayFour;
+      break;  
+  }  
+}
+
+pinInit_t* getDigitDisplay(int number){
+  switch (number){
+    case 0:
+      return digitZero;
+      break;
+    case 1:
+      return digitOne;
+      break;
+    case 2:
+      return digitTwo;
+      break;
+    case 3:
+      return digitThree;
+      break;
+    case 4:
+      return digitFour;
+      break;
+    case 5:
+      return digitFive;
+      break;
+    case 6:
+      return digitSix;
+      break;
+    case 7:
+      return digitSeven;
+      break;
+    case 8:
+      return digitEight;
+      break;
+    case 9:
+      return digitNine;
+      break;
+    default:
+      return digitBlank;
+      break;  
+  }
 }
