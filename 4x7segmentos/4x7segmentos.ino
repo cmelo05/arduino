@@ -156,6 +156,28 @@ pinInit_t digitZero[] = {
   {pinDp, LOW},
 };
 
+pinInit_t digitDot[] = {
+  {pinA, LOW},
+  {pinB, LOW},
+  {pinC, LOW},
+  {pinD, LOW},
+  {pinE, LOW},
+  {pinF, LOW},
+  {pinG, LOW},
+  {pinDp, HIGH},
+};
+
+pinInit_t digitGrads[] = {
+  {pinA, HIGH},
+  {pinB, HIGH},
+  {pinC, LOW},
+  {pinD, LOW},
+  {pinE, LOW},
+  {pinF, HIGH},
+  {pinG, HIGH},
+  {pinDp, LOW},
+};
+
 pinInit_t digitBlank[] = {
   {pinA, LOW},
   {pinB, LOW},
@@ -191,24 +213,17 @@ void setup() {
 }
 
 void loop() {
-  int number = 5641;
-
-  char *arrayNumber = getChar(number);
+  char number[] = "2912";
+  
   pinInit_t* currentDisplay;
   pinInit_t* digit;
 
-  Serial.println(arrayNumber);
-
-  for(int i = 0; i < LENGTH_NUMBER; i++){
-    int segmentDigit = arrayNumber[i] - '0';
-    Serial.println(segmentDigit);
+  for(int i = 0; i < sizeof(number); i++){
     currentDisplay = getDisplay(i);
-    digit = getDigitDisplay(segmentDigit);
+    digit = getDigitDisplay(number[i]);
 
     writeNumberOnScreen(currentDisplay, digit);
   }
-
-  free(arrayNumber);
 }
 
 void writeNumberOnScreen(pinInit_t * selectedDisplay, pinInit_t * number) {
@@ -219,14 +234,6 @@ void writeNumberOnScreen(pinInit_t * selectedDisplay, pinInit_t * number) {
     digitalWrite(number[i].pinNum, number[i].pinVal);
   }
   delay(5);
-}
-
-char * getChar(int number){
-   char *str_to_ret = (char*)malloc(sizeof(char) * LENGTH_NUMBER);
-
-  itoa(number, str_to_ret, 10);
-
-  return str_to_ret;
 }
 
 pinInit_t* getDisplay(int number){
@@ -246,37 +253,40 @@ pinInit_t* getDisplay(int number){
   }  
 }
 
-pinInit_t* getDigitDisplay(int number){
+pinInit_t* getDigitDisplay(char number){
   switch (number){
-    case 0:
+    case '0':
       return digitZero;
       break;
-    case 1:
+    case '1':
       return digitOne;
       break;
-    case 2:
+    case '2':
       return digitTwo;
       break;
-    case 3:
+    case '3':
       return digitThree;
       break;
-    case 4:
+    case '4':
       return digitFour;
       break;
-    case 5:
+    case '5':
       return digitFive;
       break;
-    case 6:
+    case '6':
       return digitSix;
       break;
-    case 7:
+    case '7':
       return digitSeven;
       break;
-    case 8:
+    case '8':
       return digitEight;
       break;
-    case 9:
+    case '9':
       return digitNine;
+      break;
+    case '.':
+      return digitDot;
       break;
     default:
       return digitBlank;
